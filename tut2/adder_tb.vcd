@@ -1,0 +1,96 @@
+$date
+	Tue Feb 03 00:52:29 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module adder_tb $end
+$var wire 6 ! sum [5:0] $end
+$var reg 6 " a [5:0] $end
+$var reg 6 # b [5:0] $end
+$scope module uut $end
+$var wire 6 $ a [5:0] $end
+$var wire 6 % b [5:0] $end
+$var wire 6 & sum [5:0] $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+$end
+#0
+$dumpvars
+b100011 &
+b1 %
+b100100 $
+b1 #
+b100100 "
+b100011 !
+$end
+#10000
+b100011 #
+b100011 %
+b100110 !
+b100110 &
+b1001 "
+b1001 $
+#20000
+b1101 #
+b1101 %
+b0 !
+b0 &
+b1101 "
+b1101 $
+#30000
+b10010 #
+b10010 %
+b10011 !
+b10011 &
+b100101 "
+b100101 $
+#40000
+b1101 #
+b1101 %
+b110100 !
+b110100 &
+b1 "
+b1 $
+#50000
+b111101 #
+b111101 %
+b111001 !
+b111001 &
+b110110 "
+b110110 $
+#60000
+b1100 #
+b1100 %
+b100001 !
+b100001 &
+b101101 "
+b101101 $
+#70000
+b110 #
+b110 %
+b110011 !
+b110011 &
+b111001 "
+b111001 $
+#80000
+b101010 #
+b101010 %
+b11011 !
+b11011 &
+b101 "
+b101 $
+#90000
+b110111 #
+b110111 %
+b101110 !
+b101110 &
+b100101 "
+b100101 $
+#100000
