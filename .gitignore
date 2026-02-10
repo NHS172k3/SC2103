@@ -1,8 +1,5 @@
-# Firebase Configuration (Private - Do Not Commit)
-# Copy this file to firebase-config.js and add your actual Firebase credentials
-
-# Ignore the actual config file with real keys
-firebase-config.js
+# Firebase Configuration
+# Note: Firebase API keys are safe to commit - security comes from Firestore Rules
 
 # Common development files
 node_modules/
