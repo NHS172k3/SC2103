@@ -1,0 +1,15 @@
+If a 6‐input LUT can implement a 6‐input function, explain why and how two such LUTs can
+implement a 7‐input function using just the LUTs and a multiplexer.
+
+A 6-input LUT can implement any arbitrary function of 6 inputs because it has 2^6 = 64 possible input combinations, and the LUT stores the output for each, allowing it to represent any truth table of 6 variables.
+
+To implement a 7-input function using two 6-input LUTs and a multiplexer:
+
+1. Use Shannon expansion to decompose the 7-input function f(a, b, c, d, e, f, g) around one variable, say a:
+   - f = a * f(1, b, c, d, e, f, g) + ~a * f(0, b, c, d, e, f, g)
+
+2. The first LUT implements f(1, b, c, d, e, f, g), taking inputs b through g (6 inputs).
+3. The second LUT implements f(0, b, c, d, e, f, g), also taking b through g.
+4. A 2:1 multiplexer selects between the outputs of the two LUTs based on the value of a.
+
+This way, the two LUTs handle the 6-input subfunctions, and the mux combines them based on the 7th input, effectively implementing the full 7-input function.

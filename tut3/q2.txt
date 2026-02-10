@@ -1,0 +1,15 @@
+Determine the contents of a 6‐input LUT configured as a 4 by 1 multiplexer. Assume the input order
+is {sel [1:0], d [3:0]}. It is easiest to look at the patterns from 0 to F for d [3:0], then consider which
+bit is selected for each sel pattern. Do not try to write out the 64‐row truth table!
+
+The LUT implements a 4:1 multiplexer where the output is d[sel], with sel = {sel1, sel0} and d = {d3, d2, d1, d0}.
+
+- For sel = 00: output = d0 (LSB of d)
+- For sel = 01: output = d1
+- For sel = 10: output = d2
+- For sel = 11: output = d3 (MSB of d)
+
+The LUT contents can be derived by setting the output to 1 whenever d[sel] = 1 for the given inputs, resulting in a 64-bit configuration that matches this selection logic.
+
+
+

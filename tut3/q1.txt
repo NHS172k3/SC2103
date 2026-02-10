@@ -1,0 +1,13 @@
+1) Describe 3 alternative functions that the LUTs in modern FPGAs can be configured to implement
+
+Shift registers, Distributed RAM, Multiplexers
+
+Shift registers help to perform left shifts (multiply by 2) or right shifts (divide by 2) on data.
+Why is a LUT-based shift register better than a traditional flip-flop based shift register?
+In a traditional shift register using flip-flops, shifting data by N bits requires N clock cycles, so the latency (delay) increases linearly with the number of bits shifted. Even shifting by just 1 bit takes 1 full clock cycle.
+In contrast, a LUT configured as a shift register (e.g., SRL in Xilinx FPGAs) can perform shifts of up to 32 bits in a single clock cycle, with a fixed delay equal to the LUT's propagation delay, regardless of the shift amount. This makes LUT-based shift registers much faster and more efficient for applications requiring variable or large shifts.
+
+How exactly does a LUT-based FPGA implement this? In SRL mode, the LUT's internal flip-flops are chained together to form a shift register. The input data is fed into the first flip-flop, and on each clock edge, the data shifts through the chain. Multiplexers within the LUT allow selecting the output from any stage in the chain (e.g., after 1, 2, up to 32 shifts), enabling variable shift lengths without additional logic. This reuses the LUT's existing resources efficiently, providing both speed and flexibility.
+Why is this possible? LUTs in FPGAs are not just for combinational logic; they include associated flip-flops and configurable multiplexers. By bypassing the LUT's truth table and chaining the flip-flops, the FPGA can repurpose the LUT for sequential functions like shift registers, reducing the need for separate flip-flop resources and optimizing area and power for common operations.
+
+2)

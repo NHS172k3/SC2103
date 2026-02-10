@@ -1,10 +1,10 @@
-# SC2103: Introduction to Computer Systems
+# SC2103: Digital Systems Design
 
 This repository contains coursework, tutorials, and projects for the SC2103 module at Nanyang Technological University (NTU), taken in Year 2 Semester 2, 2026.
 
 ## Course Overview
 
-SC2103 introduces students to the fundamental concepts of computer systems, including computer organization, assembly language programming, digital logic design, and basic hardware description languages like Verilog.
+SC2103 introduces students to the fundamental concepts of computer systems, includin digital logic design, and basic hardware description languages like Verilog.
 
 ### Prerequisites
 
