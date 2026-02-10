@@ -1,0 +1,24 @@
+# Firebase Configuration (Private - Do Not Commit)
+# Copy this file to firebase-config.js and add your actual Firebase credentials
+
+# Ignore the actual config file with real keys
+firebase-config.js
+
+# Common development files
+node_modules/
+.env
+.env.local
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build outputs
+dist/
+build/
+*.log

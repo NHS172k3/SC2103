@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lab 2: Memory Primitives Interactive Quiz</title>
+    <title>Lab 2: Memory Primitives + Leaderboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap");
@@ -16,18 +16,35 @@
       .option-btn:hover:not(:disabled) {
         transform: translateX(4px);
       }
+      .loader {
+        border-top-color: #6366f1;
+        animation: spinner 1.5s linear infinite;
+      }
+      @keyframes spinner {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
     </style>
   </head>
   <body class="bg-slate-50 min-h-screen pb-12">
     <div id="app" class="max-w-4xl mx-auto px-4 pt-8">
+      <!-- User Info Bar -->
+      <div class="mb-4 flex justify-end" id="user-info">
+        <!-- User info will be inserted here by JavaScript -->
+      </div>
+
       <!-- Header -->
       <header class="mb-8 text-center">
         <h1 class="text-3xl font-extrabold text-slate-900 mb-2">
           Lab 2 Quiz Practice
         </h1>
-        <p class="text-slate-600">
-          Memory Primitives: Distributed RAM, Design Patterns, & FPGA
-          Implementation
+        <p class="text-slate-600">Memory Primitives & FPGA Implementation</p>
+        <p class="text-xs text-slate-400 mt-2">
+          💡 Tip: Use keyboard shortcuts (1-4) to select answers!
         </p>
       </header>
 
@@ -66,15 +83,34 @@
           <div
             class="grid grid-cols-1 sm:grid-cols-2 gap-2"
             id="category-buttons"
+          ></div>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-slate-100">
+          <button
+            onclick="showLeaderboardOnly()"
+            class="text-indigo-600 font-semibold hover:underline flex items-center justify-center w-full"
           >
-            <!-- Categories injected by JS -->
-          </div>
+            <svg
+              class="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+              ></path>
+            </svg>
+            View Global Leaderboard
+          </button>
         </div>
       </div>
 
       <!-- Quiz Interface -->
       <div id="quiz-screen" class="hidden space-y-6">
-        <!-- Progress Bar -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
           <div class="flex justify-between items-center mb-2">
             <span
@@ -95,7 +131,6 @@
           </div>
         </div>
 
-        <!-- Question Card -->
         <div
           class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"
         >
@@ -103,20 +138,15 @@
             <div
               id="question-text"
               class="text-lg md:text-xl font-semibold text-slate-800 leading-relaxed"
-            >
-              Loading question...
-            </div>
+            ></div>
             <div
               id="code-block"
               class="hidden mt-4 p-4 bg-slate-900 rounded-lg text-emerald-400 font-mono text-sm whitespace-pre overflow-x-auto"
             ></div>
           </div>
-          <div id="options-container" class="p-6 md:p-8 space-y-3">
-            <!-- Options injected here -->
-          </div>
+          <div id="options-container" class="p-6 md:p-8 space-y-3"></div>
         </div>
 
-        <!-- Footer Controls -->
         <div class="flex justify-between items-center px-2">
           <button
             onclick="exitQuiz()"
@@ -124,78 +154,295 @@
           >
             Exit Quiz
           </button>
-          <div class="flex gap-3">
-            <button
-              id="next-btn"
-              onclick="nextQuestion()"
-              disabled
-              class="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-200 disabled:opacity-50 disabled:shadow-none hover:bg-indigo-700 transition-all"
-            >
-              Next Question
-            </button>
-          </div>
+          <button
+            id="next-btn"
+            onclick="nextQuestion()"
+            disabled
+            class="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-200 disabled:opacity-50 hover:bg-indigo-700 transition-all"
+          >
+            Next Question
+          </button>
         </div>
       </div>
 
       <!-- Results Screen -->
       <div
         id="results-screen"
-        class="hidden bg-white rounded-2xl shadow-xl border border-slate-200 p-8 text-center"
+        class="hidden text-center animate-in fade-in duration-500"
       >
         <div
-          class="w-24 h-24 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6"
+          class="bg-white rounded-2xl shadow-xl border border-slate-200 p-8 mb-6"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-12 w-12"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-        </div>
-        <h2 class="text-3xl font-extrabold text-slate-900 mb-2">
-          Quiz Complete!
-        </h2>
-        <p id="result-meta" class="text-slate-500 mb-8 font-medium">
-          You finished the Practice Set
-        </p>
+          <h2 class="text-3xl font-extrabold text-slate-900 mb-2">
+            Quiz Complete!
+          </h2>
+          <p id="result-meta" class="text-slate-500 mb-8 font-medium"></p>
 
-        <div class="grid grid-cols-2 gap-4 max-w-sm mx-auto mb-10">
-          <div class="p-4 bg-slate-50 rounded-xl">
-            <div id="final-score" class="text-3xl font-bold text-indigo-600">
-              0
+          <div class="grid grid-cols-2 gap-4 max-w-sm mx-auto mb-10">
+            <div class="p-4 bg-slate-50 rounded-xl">
+              <div id="final-score" class="text-3xl font-bold text-indigo-600">
+                0
+              </div>
+              <div class="text-xs font-bold text-slate-400 uppercase">
+                Score
+              </div>
             </div>
-            <div class="text-xs font-bold text-slate-400 uppercase">Score</div>
+            <div id="save-score-section">
+              <div class="p-4 bg-slate-50 rounded-xl">
+                <div
+                  id="final-percent"
+                  class="text-3xl font-bold text-emerald-600"
+                >
+                  0%
+                </div>
+                <div class="text-xs font-bold text-slate-400 uppercase">
+                  Accuracy
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="p-4 bg-slate-50 rounded-xl">
-            <div id="final-percent" class="text-3xl font-bold text-emerald-600">
-              0%
-            </div>
-            <div class="text-xs font-bold text-slate-400 uppercase">
-              Accuracy
-            </div>
+
+          <!-- Submit to Leaderboard -->
+          <div
+            id="submit-form"
+            class="max-w-sm mx-auto p-6 bg-indigo-50 rounded-2xl border border-indigo-100"
+          >
+            <!-- Will be populated by showResults() -->
           </div>
         </div>
 
         <button
           onclick="location.reload()"
-          class="w-full sm:w-auto px-10 py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all"
+          class="px-10 py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all"
         >
-          Try Again
+          Back to Home
+        </button>
+      </div>
+
+      <!-- Leaderboard Screen -->
+      <div
+        id="leaderboard-screen"
+        class="hidden space-y-6 animate-in slide-in-from-bottom-4 duration-500"
+      >
+        <div
+          class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden"
+        >
+          <div
+            class="bg-indigo-600 p-6 text-white flex justify-between items-center"
+          >
+            <h2 class="text-2xl font-bold">Global Leaderboard</h2>
+            <button
+              onclick="exitQuiz()"
+              class="bg-white/20 hover:bg-white/30 p-2 rounded-lg transition-colors"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l18 18"
+                ></path>
+              </svg>
+            </button>
+          </div>
+          <div class="p-2">
+            <table class="w-full">
+              <thead>
+                <tr
+                  class="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100"
+                >
+                  <th class="px-6 py-4 text-left">Rank</th>
+                  <th class="px-6 py-4 text-left">User</th>
+                  <th class="px-6 py-4 text-right">Score</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboard-body" class="divide-y divide-slate-50">
+                <!-- Scores here -->
+              </tbody>
+            </table>
+            <div
+              id="leaderboard-loading"
+              class="p-12 flex flex-col items-center justify-center text-slate-400"
+            >
+              <div
+                class="loader w-8 h-8 border-4 border-slate-200 rounded-full mb-4"
+              ></div>
+              <p>Loading scores...</p>
+            </div>
+          </div>
+        </div>
+        <button
+          onclick="location.reload()"
+          class="w-full py-4 bg-slate-900 text-white rounded-xl font-bold"
+        >
+          Play Again
         </button>
       </div>
     </div>
 
-    <script>
+    <!-- Firebase Configuration (loaded from external file) -->
+    <script src="firebase-config.js"></script>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+      import {
+        getAuth,
+        signInWithPopup,
+        GoogleAuthProvider,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+      import {
+        getFirestore,
+        collection,
+        addDoc,
+        getDocs,
+        query,
+        limit,
+        doc,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+      // Firebase config is loaded from firebase-config.js
+      // This file is in .gitignore to keep your credentials private
+
+      let app,
+        auth,
+        db,
+        user = null;
+      const provider = new GoogleAuthProvider();
+
+      // Initialize Firebase with error handling
+      try {
+        if (typeof firebaseConfig === "undefined") {
+          throw new Error(
+            "firebaseConfig not loaded. Check if firebase-config.js exists.",
+          );
+        }
+
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+
+        console.log("✓ Firebase initialized successfully");
+        console.log("Project ID:", firebaseConfig.projectId);
+
+        onAuthStateChanged(auth, (u) => {
+          user = u;
+          if (u) {
+            console.log("✓ Signed in as:", u.displayName || u.email);
+            updateUserUI(u);
+          } else {
+            console.log("○ Not signed in");
+            updateUserUI(null);
+          }
+        });
+      } catch (e) {
+        console.error("Firebase initialization failed:", e);
+        console.error("Error details:", e.message);
+        showError("Leaderboard unavailable. Quiz still works!");
+
+        // Make auth/db null so other checks work
+        auth = null;
+        db = null;
+      }
+
+      function updateUserUI(user) {
+        const userInfo = document.getElementById("user-info");
+        if (!userInfo) return;
+
+        if (user) {
+          userInfo.innerHTML = `
+            <div class="flex items-center gap-3">
+              ${user.photoURL ? `<img src="${user.photoURL}" class="w-8 h-8 rounded-full" alt="${user.displayName}">` : ""}
+              <span class="text-sm font-medium text-slate-700">${user.displayName || user.email}</span>
+              <button onclick="signOutUser()" class="text-xs text-slate-500 hover:text-slate-700 underline">Sign Out</button>
+            </div>
+          `;
+        } else {
+          userInfo.innerHTML = `
+            <button onclick="signInWithGoogle()" class="flex items-center gap-2 px-4 py-2 bg-white border-2 border-slate-200 rounded-lg hover:border-indigo-500 transition-all text-sm font-medium text-slate-700">
+              <svg class="w-5 h-5" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              </svg>
+              Sign in with Google
+            </button>
+          `;
+        }
+      }
+
+      window.signInWithGoogle = async () => {
+        if (!auth) {
+          alert(
+            "Firebase not initialized. Check firebase-config.js and browser console.",
+          );
+          return;
+        }
+
+        try {
+          const result = await signInWithPopup(auth, provider);
+          user = result.user;
+          console.log("✓ Signed in as:", user.displayName);
+        } catch (error) {
+          console.error("Sign-in error:", error);
+          console.error("Error code:", error.code);
+          console.error("Error message:", error.message);
+
+          if (error.code === "auth/popup-closed-by-user") {
+            alert(
+              "Sign-in cancelled. You can still use the quiz without leaderboard features.",
+            );
+          } else if (error.code === "auth/popup-blocked") {
+            alert(
+              "Pop-up blocked by browser. Please allow pop-ups for this site and try again.",
+            );
+          } else if (error.code === "auth/unauthorized-domain") {
+            alert(
+              "This domain is not authorized. Add it in Firebase Console → Authentication → Settings → Authorized domains.",
+            );
+          } else {
+            alert(
+              `Sign-in failed: ${error.message}\n\nCheck console for details. You can still use the quiz without leaderboard.`,
+            );
+          }
+        }
+      };
+
+      window.signOutUser = async () => {
+        if (!auth) {
+          console.error("Firebase auth not initialized");
+          return;
+        }
+
+        try {
+          await signOut(auth);
+          console.log("✓ Signed out");
+          user = null;
+        } catch (error) {
+          console.error("Sign-out error:", error);
+          alert("Sign-out failed. Please refresh the page.");
+        }
+      };
+
+      function showError(msg) {
+        const banner = document.createElement("div");
+        banner.className =
+          "bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4 rounded";
+        banner.innerHTML = `<p class="font-semibold">⚠️ ${msg}</p>`;
+        document.getElementById("app").prepend(banner);
+      }
+
+      // Quiz Logic - ALL 100 QUESTIONS
       const quizData = [
-        // Section A: Memory Architecture
+        // Section A: Memory Architecture (15 questions)
         {
           id: 1,
           category: "Section A: Memory Architecture",
@@ -314,7 +561,7 @@
         {
           id: 11,
           category: "Section A: Memory Architecture",
-          q: 'In the IP Configuration, why are inputs/outputs set as "unregistered"?',
+          q: "In the IP Configuration, why are inputs/outputs set as 'unregistered'?",
           options: [
             "To save power",
             "To allow asynchronous reads and keep the design simple",
@@ -362,7 +609,7 @@
           a: 1,
         },
 
-        // Section B: Design Architecture
+        // Section B: Design Architecture (15 questions)
         {
           id: 16,
           category: "Section B: Design Architecture",
@@ -539,7 +786,7 @@
           a: 3,
         },
 
-        // Section C: Clock Management
+        // Section C: Clock Management (10 questions)
         {
           id: 31,
           category: "Section C: Clock Management",
@@ -641,7 +888,7 @@
           a: 1,
         },
 
-        // Section D: Testbench & Simulation
+        // Section D: Testbench and Simulation (10 questions)
         {
           id: 41,
           category: "Section D: Testbench and Simulation",
@@ -743,7 +990,7 @@
           a: 1,
         },
 
-        // Section E: FPGA Implementation
+        // Section E: FPGA Implementation (10 questions)
         {
           id: 51,
           category: "Section E: FPGA Implementation",
@@ -845,7 +1092,7 @@
           a: 3,
         },
 
-        // Section F: Code Analysis
+        // Section F: Code Analysis (15 questions)
         {
           id: 61,
           category: "Section F: Code Analysis",
@@ -896,7 +1143,8 @@
         {
           id: 65,
           category: "Section F: Code Analysis",
-          q: "What type of assignment is this? \nassign d_out = show_reg ? mem_d : reg_d;",
+          q: "What type of assignment is this?",
+          code: "assign d_out = show_reg ? mem_d : reg_d;",
           options: [
             "Blocking assignment",
             "Non-blocking assignment",
@@ -909,6 +1157,7 @@
           id: 66,
           category: "Section F: Code Analysis",
           q: "In this instantiation, what does .a(d_in[5:0]) mean?",
+          code: "Lab2_mem U1 (\n    .a(d_in[5:0]),\n    ...\n);",
           options: [
             "Port 'a' connects to bits [5:0] of d_in",
             "Port 'a' is 5 bits wide",
@@ -933,14 +1182,16 @@
         {
           id: 68,
           category: "Section F: Code Analysis",
-          q: "How many bits is this signal? \nwire [7:0] mem_d;",
+          q: "How many bits is this signal?",
+          code: "wire [7:0] mem_d;",
           options: ["7 bits", "8 bits", "9 bits", "1 bit"],
           a: 1,
         },
         {
           id: 69,
           category: "Section F: Code Analysis",
-          q: "This XDC constraint does what? \nset_property PACKAGE_PIN V17 [get_ports {d_in[0]}]",
+          q: "This XDC constraint does what?",
+          code: "set_property PACKAGE_PIN V17 [get_ports {d_in[0]}]",
           options: [
             "Sets d_in[0] to pin V17",
             "Maps physical pin V17 to signal d_in[0]",
@@ -952,7 +1203,8 @@
         {
           id: 70,
           category: "Section F: Code Analysis",
-          q: "What synthesizes from this code? \nreg [27:0] counter; \nalways @(posedge clk_in) counter <= counter + 1;",
+          q: "What synthesizes from this code?",
+          code: "reg [27:0] counter;\nalways @(posedge clk_in)\n    counter <= counter + 1;",
           options: [
             "A 28-bit adder",
             "A 28-bit counter (28 flip-flops + increment logic)",
@@ -964,7 +1216,8 @@
         {
           id: 71,
           category: "Section F: Code Analysis",
-          q: "What is the difference between these two reset types?",
+          q: "What is the difference between these two?",
+          code: "// Version A\nalways @(posedge clk)\n    if (rst) reg_d <= 0;\n\n// Version B\nalways @(posedge clk or posedge rst)\n    if (rst) reg_d <= 0;",
           options: [
             "No difference",
             "A is synchronous reset, B is asynchronous reset",
@@ -1012,7 +1265,8 @@
         {
           id: 75,
           category: "Section F: Code Analysis",
-          q: "What does this generate? \nalways #5 clk = ~clk;",
+          q: "What does this generate?",
+          code: "always #5 clk = ~clk;",
           options: [
             "A 5 Hz clock",
             "A 10 Hz clock",
@@ -1022,7 +1276,7 @@
           a: 2,
         },
 
-        // Section G: Conceptual
+        // Section G: Conceptual Questions (10 questions)
         {
           id: 76,
           category: "Section G: Conceptual Questions",
@@ -1144,7 +1398,7 @@
           a: 3,
         },
 
-        // Section H: Common Mistakes
+        // Section H: Common Mistakes & Debugging (10 questions)
         {
           id: 86,
           category: "Section H: Common Mistakes & Debugging",
@@ -1187,7 +1441,7 @@
           q: "If synthesis uses Block RAM instead of distributed RAM:",
           options: [
             "Change the data width",
-            'Regenerate IP with "Distributed Memory Generator"',
+            "Regenerate IP with 'Distributed Memory Generator'",
             "Use a different FPGA",
             "Modify the constraints",
           ],
@@ -1266,7 +1520,7 @@
           a: 3,
         },
 
-        // Section I: Synthesis
+        // Section I: Synthesis Reports (5 questions)
         {
           id: 96,
           category: "Section I: Synthesis Reports",
@@ -1333,56 +1587,71 @@
       let currentIndex = 0;
       let score = 0;
       let hasAnswered = false;
+      let userAnswers = []; // Track user's answers for review
 
-      // UI Initialization
-      const categories = [...new Set(quizData.map((q) => q.category))];
-      const categoryList = document.getElementById("category-buttons");
-      categories.forEach((cat) => {
-        const btn = document.createElement("button");
-        btn.className =
-          "p-2 text-left text-sm border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors truncate";
-        btn.innerText = cat;
-        btn.onclick = () => startQuiz(cat);
-        categoryList.appendChild(btn);
+      // Keyboard shortcuts
+      document.addEventListener("keydown", (e) => {
+        const quizScreen = document.getElementById("quiz-screen");
+        if (quizScreen.classList.contains("hidden")) return;
+
+        // Press 1-4 for options A-D
+        if (!hasAnswered && e.key >= "1" && e.key <= "4") {
+          const optionIndex = parseInt(e.key) - 1;
+          const buttons = document.querySelectorAll(".option-btn");
+          if (buttons[optionIndex]) {
+            selectOption(optionIndex, buttons[optionIndex]);
+          }
+        }
+
+        // Enter or Space for next question
+        if (hasAnswered && (e.key === "Enter" || e.key === " ")) {
+          e.preventDefault();
+          window.nextQuestion();
+        }
       });
 
-      function showCategorySelector() {
-        document.getElementById("category-list").classList.toggle("hidden");
-      }
-
-      function startQuiz(mode) {
+      // Expose to window for inline onclicks
+      window.startQuiz = (mode) => {
         if (mode === "all") {
           currentQuestions = [...quizData].sort(() => Math.random() - 0.5);
         } else {
-          currentQuestions = quizData.filter((q) => q.category === mode);
+          currentQuestions = quizData
+            .filter((q) => q.category === mode)
+            .sort(() => Math.random() - 0.5);
         }
-
         currentIndex = 0;
         score = 0;
-        hasAnswered = false;
-
+        userAnswers = [];
         document.getElementById("setup-screen").classList.add("hidden");
-        document.getElementById("results-screen").classList.add("hidden");
         document.getElementById("quiz-screen").classList.remove("hidden");
-
         showQuestion();
-      }
+      };
+
+      window.showCategorySelector = () => {
+        const list = document.getElementById("category-buttons");
+        list.innerHTML = "";
+        const categories = [...new Set(quizData.map((q) => q.category))];
+        categories.forEach((cat) => {
+          const btn = document.createElement("button");
+          btn.className =
+            "p-2 text-left text-sm border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors truncate";
+          btn.innerText = cat;
+          btn.onclick = () => window.startQuiz(cat);
+          list.appendChild(btn);
+        });
+        document.getElementById("category-list").classList.toggle("hidden");
+      };
 
       function showQuestion() {
         const q = currentQuestions[currentIndex];
         hasAnswered = false;
-
-        // Progress Update
         document.getElementById("category-label").innerText = q.category;
         document.getElementById("progress-text").innerText =
           `Question ${currentIndex + 1} of ${currentQuestions.length}`;
         document.getElementById("progress-bar").style.width =
           `${((currentIndex + 1) / currentQuestions.length) * 100}%`;
-
-        // Text Update
         document.getElementById("question-text").innerText = q.q;
 
-        // Code Block
         const codeEl = document.getElementById("code-block");
         if (q.code) {
           codeEl.innerText = q.code;
@@ -1391,83 +1660,353 @@
           codeEl.classList.add("hidden");
         }
 
-        // Options
         const container = document.getElementById("options-container");
         container.innerHTML = "";
-
         q.options.forEach((opt, idx) => {
           const btn = document.createElement("button");
           btn.className =
-            "option-btn w-full p-4 text-left rounded-xl border-2 border-slate-100 hover:border-indigo-300 font-medium text-slate-700 flex items-center";
-          btn.innerHTML = `
-                    <span class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs font-bold mr-4 shrink-0">${String.fromCharCode(65 + idx)}</span>
-                    <span>${opt}</span>
-                `;
+            "option-btn w-full p-4 text-left rounded-xl border-2 border-slate-100 hover:border-indigo-300 font-medium text-slate-700 flex items-center transition-all";
+          btn.innerHTML = `<span class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs font-bold mr-4 shrink-0">${String.fromCharCode(65 + idx)}</span><span>${opt}</span>`;
           btn.onclick = () => selectOption(idx, btn);
+          btn.setAttribute("data-option-index", idx);
           container.appendChild(btn);
         });
-
         document.getElementById("next-btn").disabled = true;
       }
 
       function selectOption(idx, btn) {
         if (hasAnswered) return;
         hasAnswered = true;
-
         const q = currentQuestions[currentIndex];
         const isCorrect = idx === q.a;
+
+        // Track user's answer
+        userAnswers.push({
+          question: q.q,
+          userAnswer: idx,
+          correctAnswer: q.a,
+          isCorrect: isCorrect,
+          options: q.options,
+        });
 
         if (isCorrect) {
           score++;
           btn.classList.add("border-emerald-500", "bg-emerald-50");
-          btn
-            .querySelector("span")
-            .classList.add("bg-emerald-500", "text-white");
         } else {
           btn.classList.add("border-rose-500", "bg-rose-50");
-          btn.querySelector("span").classList.add("bg-rose-500", "text-white");
-
-          // Show correct one
-          const buttons = document.querySelectorAll(".option-btn");
-          buttons[q.a].classList.add("border-emerald-500", "bg-emerald-50");
-          buttons[q.a]
-            .querySelector("span")
-            .classList.add("bg-emerald-500", "text-white");
         }
-
+        const buttons = document.querySelectorAll(".option-btn");
+        buttons.forEach((b) => (b.disabled = true));
+        buttons[q.a].classList.add("border-emerald-500", "bg-emerald-100");
         document.getElementById("next-btn").disabled = false;
+        document.getElementById("next-btn").focus();
       }
 
-      function nextQuestion() {
+      window.nextQuestion = () => {
         currentIndex++;
-        if (currentIndex < currentQuestions.length) {
-          showQuestion();
-        } else {
-          showResults();
-        }
-      }
+        if (currentIndex < currentQuestions.length) showQuestion();
+        else showResults();
+      };
 
       function showResults() {
         document.getElementById("quiz-screen").classList.add("hidden");
         document.getElementById("results-screen").classList.remove("hidden");
 
+        const percentage = Math.round((score / currentQuestions.length) * 100);
         document.getElementById("final-score").innerText =
           `${score}/${currentQuestions.length}`;
-        const percent = Math.round((score / currentQuestions.length) * 100);
-        document.getElementById("final-percent").innerText = `${percent}%`;
+        document.getElementById("final-percent").innerText = `${percentage}%`;
 
-        let message = "Keep studying!";
-        if (percent >= 90) message = "Excellent mastery! You are ready.";
-        else if (percent >= 70)
-          message = "Good work. Review the ones you missed.";
+        // Dynamic feedback based on performance
+        let feedback = "";
+        let feedbackClass = "";
+        if (percentage >= 95) {
+          feedback = "🏆 Perfect! You're absolutely lab-ready!";
+          feedbackClass = "text-yellow-600";
+        } else if (percentage >= 90) {
+          feedback = "⭐ Excellent! You have mastery over the concepts.";
+          feedbackClass = "text-emerald-600";
+        } else if (percentage >= 80) {
+          feedback = "✨ Great job! You're well-prepared for the lab.";
+          feedbackClass = "text-green-600";
+        } else if (percentage >= 70) {
+          feedback = "👍 Good effort! Review weak areas and you'll be ready.";
+          feedbackClass = "text-blue-600";
+        } else if (percentage >= 60) {
+          feedback = "📚 Decent start. More practice needed on key concepts.";
+          feedbackClass = "text-amber-600";
+        } else {
+          feedback = "📖 Keep studying! Review the README and try again.";
+          feedbackClass = "text-orange-600";
+        }
 
-        document.getElementById("result-meta").innerText = message;
+        document.getElementById("result-meta").innerHTML =
+          `<span class="${feedbackClass} font-semibold">${feedback}</span>`;
+
+        // Update submit form based on sign-in status
+        const submitForm = document.getElementById("submit-form");
+        if (user) {
+          // User is signed in - show nickname input and submit button
+          const defaultName = user.displayName || user.email.split("@")[0];
+          submitForm.innerHTML = `
+            <h3 class="font-bold text-indigo-900 mb-2">Save to Leaderboard?</h3>
+            <p class="text-sm text-indigo-700 mb-3">Signed in as ${user.email}</p>
+            <input
+              type="text"
+              id="username"
+              maxlength="15"
+              value="${defaultName}"
+              placeholder="Display Name"
+              class="w-full px-4 py-3 rounded-xl border border-indigo-200 mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            <button
+              id="submit-score-btn"
+              onclick="saveScore()"
+              class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700 transition-all flex items-center justify-center"
+            >
+              <span id="btn-text">Submit Score</span>
+              <div
+                id="btn-loader"
+                class="hidden loader w-5 h-5 border-2 border-white rounded-full ml-2"
+              ></div>
+            </button>
+          `;
+        } else {
+          // User not signed in - show sign-in button
+          submitForm.innerHTML = `
+            <h3 class="font-bold text-indigo-900 mb-3">Sign in to save your score!</h3>
+            <button
+              onclick="signInWithGoogle()"
+              class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-indigo-300 rounded-xl hover:bg-indigo-50 transition-all text-sm font-semibold text-slate-700"
+            >
+              <svg class="w-5 h-5" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              </svg>
+              Sign in with Google
+            </button>
+            <p class="text-xs text-indigo-600 mt-3">You can still practice without signing in!</p>
+          `;
+        }
       }
 
-      function exitQuiz() {
-        document.getElementById("quiz-screen").classList.add("hidden");
-        document.getElementById("setup-screen").classList.remove("hidden");
+      // Security: Input validation and sanitization
+      function sanitizeUsername(name) {
+        // Remove harmful characters, limit length
+        return name
+          .replace(/[<>\"'&]/g, "")
+          .trim()
+          .substring(0, 15);
       }
+
+      function validateScore(score, total) {
+        return (
+          Number.isInteger(score) &&
+          Number.isInteger(total) &&
+          score >= 0 &&
+          score <= total &&
+          total <= 100
+        );
+      }
+
+      // Rate limiting: prevent spam submissions
+      let lastSubmitTime = 0;
+      const SUBMIT_COOLDOWN = 5000; // 5 seconds
+
+      window.saveScore = async () => {
+        if (!user) {
+          alert("Please sign in with Google first!");
+          await signInWithGoogle();
+          return;
+        }
+
+        const nameInput = document.getElementById("username")?.value;
+        const name = nameInput
+          ? sanitizeUsername(nameInput)
+          : user.displayName || user.email.split("@")[0];
+
+        if (!name || name.length < 2) {
+          alert("Please enter a valid display name (2-15 characters)");
+          return;
+        }
+
+        // Rate limiting check
+        const now = Date.now();
+        if (now - lastSubmitTime < SUBMIT_COOLDOWN) {
+          alert(
+            `Please wait ${Math.ceil((SUBMIT_COOLDOWN - (now - lastSubmitTime)) / 1000)} seconds before submitting again.`,
+          );
+          return;
+        }
+
+        // Validate score data
+        if (!validateScore(score, currentQuestions.length)) {
+          console.error("Invalid score data");
+          alert("Invalid score data. Please try again.");
+          return;
+        }
+
+        const btnText = document.getElementById("btn-text");
+        const btnLoader = document.getElementById("btn-loader");
+        const submitBtn = document.getElementById("submit-score-btn");
+
+        btnText.innerText = "Saving...";
+        btnLoader.classList.remove("hidden");
+        submitBtn.disabled = true;
+
+        try {
+          const scoreCollection = collection(
+            db,
+            "artifacts",
+            appId,
+            "public",
+            "data",
+            "leaderboard",
+          );
+
+          await addDoc(scoreCollection, {
+            username: name,
+            email: user.email,
+            photoURL: user.photoURL || "",
+            score: score,
+            total: currentQuestions.length,
+            timestamp: now,
+            userId: user.uid,
+            version: "2.0",
+          });
+
+          lastSubmitTime = now;
+          showLeaderboardOnly();
+        } catch (e) {
+          console.error("Save error:", e);
+          let errorMsg = "Could not save score. ";
+          if (e.code === "permission-denied") {
+            errorMsg +=
+              "Make sure Google Sign-In is enabled in Firebase Console.";
+          } else if (e.code === "unavailable") {
+            errorMsg += "Network connection issue.";
+          } else {
+            errorMsg += "Please try again.";
+          }
+          alert(errorMsg);
+        } finally {
+          btnText.innerText = "Submit Score";
+          btnLoader.classList.add("hidden");
+          submitBtn.disabled = false;
+        }
+      };
+
+      window.showLeaderboardOnly = async () => {
+        document.getElementById("setup-screen").classList.add("hidden");
+        document.getElementById("results-screen").classList.add("hidden");
+        document
+          .getElementById("leaderboard-screen")
+          .classList.remove("hidden");
+
+        const tbody = document.getElementById("leaderboard-body");
+        const loader = document.getElementById("leaderboard-loading");
+        tbody.innerHTML = "";
+        loader.classList.remove("hidden");
+
+        if (!user || !db) {
+          loader.innerHTML =
+            '<p class="text-amber-600 p-8 text-center">Leaderboard unavailable. Check your connection.</p>';
+          return;
+        }
+
+        try {
+          const scoreCol = collection(
+            db,
+            "artifacts",
+            appId,
+            "public",
+            "data",
+            "leaderboard",
+          );
+          const snapshot = await getDocs(query(scoreCol));
+          let data = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+
+          // Filter: Keep only best score per user
+          const userBestScores = {};
+          data.forEach((item) => {
+            const percentage = item.score / item.total;
+            const userId = item.userId || item.username; // fallback to username for grouping
+
+            if (
+              !userBestScores[userId] ||
+              percentage > userBestScores[userId].percentage
+            ) {
+              userBestScores[userId] = {
+                ...item,
+                percentage: percentage,
+              };
+            }
+          });
+
+          // Convert back to array and sort by percentage (descending)
+          data = Object.values(userBestScores).sort(
+            (a, b) => b.percentage - a.percentage,
+          );
+
+          loader.classList.add("hidden");
+
+          if (data.length === 0) {
+            tbody.innerHTML =
+              '<tr><td colspan="3" class="p-8 text-center text-slate-400">No scores yet. Be the first!</td></tr>';
+            return;
+          }
+
+          data.slice(0, 20).forEach((item, i) => {
+            const row = document.createElement("tr");
+            const percentage = Math.round(item.percentage * 100);
+
+            // Medal colors for top 3
+            const rankColor =
+              i === 0
+                ? "text-yellow-500"
+                : i === 1
+                  ? "text-slate-400"
+                  : i === 2
+                    ? "text-amber-600"
+                    : "text-slate-300";
+
+            const isMe = user && item.userId === user.uid;
+            const rowClass = isMe ? "bg-indigo-50 font-semibold" : "";
+
+            // Escape username for display safety
+            const safeUsername = sanitizeUsername(item.username || "Anonymous");
+
+            // Show profile photo if available
+            const photoHTML = item.photoURL
+              ? `<img src="${item.photoURL}" class="w-8 h-8 rounded-full inline-block mr-2" alt="${safeUsername}">`
+              : "";
+
+            row.className = rowClass;
+            row.innerHTML = `
+              <td class="px-6 py-4 font-bold ${rankColor}">#${i + 1}</td>
+              <td class="px-6 py-4 text-slate-700">
+                <div class="flex items-center gap-2">
+                  ${photoHTML}
+                  <span>${safeUsername}${isMe ? ' <span class="text-indigo-600">(You)</span>' : ""}</span>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-right font-mono font-bold text-indigo-600">${percentage}% <span class="text-xs text-slate-400">(${item.score}/${item.total})</span></td>
+            `;
+            tbody.appendChild(row);
+          });
+        } catch (e) {
+          console.error("Load error:", e);
+          loader.innerHTML =
+            '<p class="text-rose-500 p-8 text-center">⚠️ Error loading leaderboard. Please refresh and try again.</p>';
+        }
+      };
+
+      window.exitQuiz = () => location.reload();
     </script>
   </body>
 </html>
