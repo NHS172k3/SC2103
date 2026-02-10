@@ -1,0 +1,1473 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lab 2: Memory Primitives Interactive Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap");
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      .option-btn {
+        transition: all 0.2s ease;
+      }
+      .option-btn:hover:not(:disabled) {
+        transform: translateX(4px);
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 min-h-screen pb-12">
+    <div id="app" class="max-w-4xl mx-auto px-4 pt-8">
+      <!-- Header -->
+      <header class="mb-8 text-center">
+        <h1 class="text-3xl font-extrabold text-slate-900 mb-2">
+          Lab 2 Quiz Practice
+        </h1>
+        <p class="text-slate-600">
+          Memory Primitives: Distributed RAM, Design Patterns, & FPGA
+          Implementation
+        </p>
+      </header>
+
+      <!-- Menu / Dashboard -->
+      <div
+        id="setup-screen"
+        class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8"
+      >
+        <h2 class="text-xl font-bold mb-4">Select Study Mode</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <button
+            onclick="startQuiz('all')"
+            class="p-4 text-left border-2 border-indigo-100 rounded-xl hover:border-indigo-500 hover:bg-indigo-50 transition-colors group"
+          >
+            <div class="font-bold text-indigo-600">Full Practice</div>
+            <div class="text-sm text-slate-500">
+              All 100 questions across all categories
+            </div>
+          </button>
+          <button
+            onclick="showCategorySelector()"
+            class="p-4 text-left border-2 border-emerald-100 rounded-xl hover:border-emerald-500 hover:bg-emerald-50 transition-colors"
+          >
+            <div class="font-bold text-emerald-600">Targeted Practice</div>
+            <div class="text-sm text-slate-500">
+              Focus on a specific section
+            </div>
+          </button>
+        </div>
+
+        <div
+          id="category-list"
+          class="hidden space-y-2 animate-in fade-in duration-300"
+        >
+          <h3 class="font-semibold text-slate-700 mb-3">Pick a Section:</h3>
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 gap-2"
+            id="category-buttons"
+          >
+            <!-- Categories injected by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Quiz Interface -->
+      <div id="quiz-screen" class="hidden space-y-6">
+        <!-- Progress Bar -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+          <div class="flex justify-between items-center mb-2">
+            <span
+              id="category-label"
+              class="text-xs font-bold uppercase tracking-wider text-indigo-500"
+              >Section A</span
+            >
+            <span id="progress-text" class="text-xs font-medium text-slate-500"
+              >Question 1 of 100</span
+            >
+          </div>
+          <div class="w-full bg-slate-100 rounded-full h-2">
+            <div
+              id="progress-bar"
+              class="bg-indigo-500 h-2 rounded-full transition-all duration-300"
+              style="width: 1%"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Question Card -->
+        <div
+          class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"
+        >
+          <div class="p-6 md:p-8 bg-slate-50 border-b border-slate-200">
+            <div
+              id="question-text"
+              class="text-lg md:text-xl font-semibold text-slate-800 leading-relaxed"
+            >
+              Loading question...
+            </div>
+            <div
+              id="code-block"
+              class="hidden mt-4 p-4 bg-slate-900 rounded-lg text-emerald-400 font-mono text-sm whitespace-pre overflow-x-auto"
+            ></div>
+          </div>
+          <div id="options-container" class="p-6 md:p-8 space-y-3">
+            <!-- Options injected here -->
+          </div>
+        </div>
+
+        <!-- Footer Controls -->
+        <div class="flex justify-between items-center px-2">
+          <button
+            onclick="exitQuiz()"
+            class="text-slate-400 hover:text-slate-600 font-medium text-sm"
+          >
+            Exit Quiz
+          </button>
+          <div class="flex gap-3">
+            <button
+              id="next-btn"
+              onclick="nextQuestion()"
+              disabled
+              class="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-200 disabled:opacity-50 disabled:shadow-none hover:bg-indigo-700 transition-all"
+            >
+              Next Question
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Screen -->
+      <div
+        id="results-screen"
+        class="hidden bg-white rounded-2xl shadow-xl border border-slate-200 p-8 text-center"
+      >
+        <div
+          class="w-24 h-24 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-12 w-12"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+        </div>
+        <h2 class="text-3xl font-extrabold text-slate-900 mb-2">
+          Quiz Complete!
+        </h2>
+        <p id="result-meta" class="text-slate-500 mb-8 font-medium">
+          You finished the Practice Set
+        </p>
+
+        <div class="grid grid-cols-2 gap-4 max-w-sm mx-auto mb-10">
+          <div class="p-4 bg-slate-50 rounded-xl">
+            <div id="final-score" class="text-3xl font-bold text-indigo-600">
+              0
+            </div>
+            <div class="text-xs font-bold text-slate-400 uppercase">Score</div>
+          </div>
+          <div class="p-4 bg-slate-50 rounded-xl">
+            <div id="final-percent" class="text-3xl font-bold text-emerald-600">
+              0%
+            </div>
+            <div class="text-xs font-bold text-slate-400 uppercase">
+              Accuracy
+            </div>
+          </div>
+        </div>
+
+        <button
+          onclick="location.reload()"
+          class="w-full sm:w-auto px-10 py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all"
+        >
+          Try Again
+        </button>
+      </div>
+    </div>
+
+    <script>
+      const quizData = [
+        // Section A: Memory Architecture
+        {
+          id: 1,
+          category: "Section A: Memory Architecture",
+          q: "What type of memory is used in Lab 2?",
+          options: [
+            "Block RAM (BRAM)",
+            "Distributed RAM (LUT-based)",
+            "Flash memory",
+            "DRAM",
+          ],
+          a: 1,
+        },
+        {
+          id: 2,
+          category: "Section A: Memory Architecture",
+          q: "Why is distributed RAM preferred over Block RAM for this lab?",
+          options: [
+            "Distributed RAM is faster",
+            "The memory size (512 bits) is too small to efficiently use BRAM",
+            "Block RAM doesn't exist on Artix-7 FPGAs",
+            "Distributed RAM has built-in reset functionality",
+          ],
+          a: 1,
+        },
+        {
+          id: 3,
+          category: "Section A: Memory Architecture",
+          q: "How many LUTs are required to implement a 64×8 distributed RAM?",
+          options: ["1 LUT", "8 LUTs", "64 LUTs", "512 LUTs"],
+          a: 1,
+        },
+        {
+          id: 4,
+          category: "Section A: Memory Architecture",
+          q: "Why is the memory depth set to 64 in this lab?",
+          options: [
+            "It's the maximum depth supported",
+            "It matches perfectly with a 6-input LUT architecture (2^6 = 64)",
+            "64 is the standard depth for all FPGAs",
+            "It's required by the Basys 3 board",
+          ],
+          a: 1,
+        },
+        {
+          id: 5,
+          category: "Section A: Memory Architecture",
+          q: "What does each LUT in the distributed RAM store?",
+          options: [
+            "All 64 addresses",
+            "One bit across all 64 addresses",
+            "One complete 8-bit word",
+            "The control logic",
+          ],
+          a: 1,
+        },
+        {
+          id: 6,
+          category: "Section A: Memory Architecture",
+          q: "The memory address port is 6 bits wide because:",
+          options: [
+            "We only have 6 switches available",
+            "2^6 = 64, matching the memory depth",
+            "The FPGA requires 6-bit addresses",
+            "It's a standard in Verilog",
+          ],
+          a: 1,
+        },
+        {
+          id: 7,
+          category: "Section A: Memory Architecture",
+          q: "What happens to d_in[7:6] when addressing memory?",
+          options: [
+            "They are used for error checking",
+            "They control the write enable",
+            "They are ignored (only d_in[5:0] is used for address)",
+            "They select the memory bank",
+          ],
+          a: 2,
+        },
+        {
+          id: 8,
+          category: "Section A: Memory Architecture",
+          q: "Which statement about the memory's read operation is TRUE?",
+          options: [
+            "Reads are synchronous (require clock edge)",
+            "Reads are asynchronous (combinational, immediate)",
+            "Reads require a read enable signal",
+            "Reads take 2 clock cycles",
+          ],
+          a: 1,
+        },
+        {
+          id: 9,
+          category: "Section A: Memory Architecture",
+          q: "Which statement about the memory's write operation is TRUE?",
+          options: [
+            "Writes are asynchronous",
+            "Writes occur immediately when data changes",
+            "Writes are synchronous (occur on clock edge when write_en=1)",
+            "Writes don't require a clock",
+          ],
+          a: 2,
+        },
+        {
+          id: 10,
+          category: "Section A: Memory Architecture",
+          q: "Can distributed RAM be initialized with data at synthesis time?",
+          options: [
+            "Yes, always",
+            "No, never",
+            "Yes, but it's typically not done; Block RAM is better for initialization",
+            "Only on certain FPGA families",
+          ],
+          a: 2,
+        },
+        {
+          id: 11,
+          category: "Section A: Memory Architecture",
+          q: 'In the IP Configuration, why are inputs/outputs set as "unregistered"?',
+          options: [
+            "To save power",
+            "To allow asynchronous reads and keep the design simple",
+            "Because the FPGA doesn't have enough registers",
+            "It's a requirement for distributed RAM",
+          ],
+          a: 1,
+        },
+        {
+          id: 12,
+          category: "Section A: Memory Architecture",
+          q: "What would happen if we used a depth of 128 instead of 64?",
+          options: [
+            "It would fail to synthesize",
+            "It would require 2 LUTs per bit plus multiplexers, doubling resources",
+            "It would be more efficient",
+            "Nothing would change",
+          ],
+          a: 1,
+        },
+        {
+          id: 13,
+          category: "Section A: Memory Architecture",
+          q: "The memory output port 'spo' stands for:",
+          options: [
+            "Special Purpose Output",
+            "Single Port Output",
+            "Synchronous Pipelined Output",
+            "Serial Port Output",
+          ],
+          a: 1,
+        },
+        {
+          id: 14,
+          category: "Section A: Memory Architecture",
+          q: "Which memory type typically has synchronous reads?",
+          options: ["Distributed RAM", "Block RAM", "Both", "Neither"],
+          a: 1,
+        },
+        {
+          id: 15,
+          category: "Section A: Memory Architecture",
+          q: "The total memory capacity in this lab is:",
+          options: ["64 bits", "512 bits (64 × 8)", "8 bits", "1 Kbit"],
+          a: 1,
+        },
+
+        // Section B: Design Architecture
+        {
+          id: 16,
+          category: "Section B: Design Architecture",
+          q: "What is the purpose of the register (reg_d) in this design?",
+          options: [
+            "To store the memory output",
+            "To act as a staging area for data before writing to memory",
+            "To clock the system",
+            "To display data on the 7-segment display",
+          ],
+          a: 1,
+        },
+        {
+          id: 17,
+          category: "Section B: Design Architecture",
+          q: "Why does the RAM's data input connect to reg_d instead of d_in?",
+          options: [
+            "It's a mistake in the design",
+            "To allow time-multiplexing: save data to register, then change switches to address",
+            "reg_d is faster than d_in",
+            "The IP core requires it",
+          ],
+          a: 1,
+        },
+        {
+          id: 18,
+          category: "Section B: Design Architecture",
+          q: "What is the correct two-step process to write to memory?",
+          options: [
+            "Set address, press write_en",
+            "Set data, press write_en",
+            "Set data and press save_data, then set address and press write_en",
+            "Press write_en, then set data",
+          ],
+          a: 2,
+        },
+        {
+          id: 19,
+          category: "Section B: Design Architecture",
+          q: "The multiplexer (MUX) in the design:",
+          options: [
+            "Selects between clock sources",
+            "Selects between displaying register contents or memory contents",
+            "Selects which memory address to read",
+            "Selects between different data inputs",
+          ],
+          a: 1,
+        },
+        {
+          id: 20,
+          category: "Section B: Design Architecture",
+          q: "When show_reg = 1, d_out displays:",
+          options: [
+            "The register contents (reg_d)",
+            "The memory contents (mem_d)",
+            "The input switches (d_in)",
+            "Zero",
+          ],
+          a: 1,
+        },
+        {
+          id: 21,
+          category: "Section B: Design Architecture",
+          q: "When show_reg = 0, d_out displays:",
+          options: [
+            "The register contents (reg_d)",
+            "The memory contents (mem_d)",
+            "The input switches (d_in)",
+            "The previous value",
+          ],
+          a: 0,
+        },
+        {
+          id: 22,
+          category: "Section B: Design Architecture",
+          q: "The naming of 'show_reg' can be confusing because:",
+          options: [
+            "When it's 1, it shows memory, not register",
+            "When it's 0, it shows register (the default state)",
+            "Both A and B",
+            "Neither A nor B",
+          ],
+          a: 2,
+        },
+        {
+          id: 23,
+          category: "Section B: Design Architecture",
+          q: "What architectural pattern does the register usage represent?",
+          options: [
+            "State machine",
+            "Load-store architecture / staging area",
+            "Pipeline",
+            "Cache memory",
+          ],
+          a: 1,
+        },
+        {
+          id: 24,
+          category: "Section B: Design Architecture",
+          q: "How many internal signals are declared in Lab2_top?",
+          options: ["None", "One (mem_d)", "Two (reg_d and mem_d)", "Three"],
+          a: 2,
+        },
+        {
+          id: 25,
+          category: "Section B: Design Architecture",
+          q: "Why is reg_d declared as 'reg' type?",
+          options: [
+            "It will be a physical register",
+            "It's assigned inside an 'always' block",
+            "It needs to be fast",
+            "Verilog requires it for 8-bit signals",
+          ],
+          a: 1,
+        },
+        {
+          id: 26,
+          category: "Section B: Design Architecture",
+          q: "Why is mem_d declared as 'wire' type?",
+          options: [
+            "It's driven by the RAM IP output",
+            "It changes frequently",
+            "It's faster than 'reg'",
+            "It's an input",
+          ],
+          a: 0,
+        },
+        {
+          id: 27,
+          category: "Section B: Design Architecture",
+          q: "The reset signal in this design is:",
+          options: [
+            "Asynchronous (immediate)",
+            "Synchronous (occurs on clock edge)",
+            "Not needed",
+            "Active low",
+          ],
+          a: 1,
+        },
+        {
+          id: 28,
+          category: "Section B: Design Architecture",
+          q: "What does the reset do?",
+          options: [
+            "Clears the memory",
+            "Clears reg_d to 0",
+            "Resets both memory and register",
+            "Resets the entire FPGA",
+          ],
+          a: 1,
+        },
+        {
+          id: 29,
+          category: "Section B: Design Architecture",
+          q: "The design pattern of using d_in for both data and address is called:",
+          options: [
+            "Multiplexing",
+            "Time-division multiplexing",
+            "Demultiplexing",
+            "Address/data bus sharing",
+          ],
+          a: 1,
+        },
+        {
+          id: 30,
+          category: "Section B: Design Architecture",
+          q: "In the always block, why do we use <= instead of =?",
+          options: [
+            "It's faster",
+            "Non-blocking assignment is required for sequential (clocked) logic",
+            "Blocking assignment would cause errors",
+            "Both B and C",
+          ],
+          a: 3,
+        },
+
+        // Section C: Clock Management
+        {
+          id: 31,
+          category: "Section C: Clock Management",
+          q: "What is the frequency of the Basys 3 system clock?",
+          options: ["10 MHz", "50 MHz", "100 MHz", "1 GHz"],
+          a: 2,
+        },
+        {
+          id: 32,
+          category: "Section C: Clock Management",
+          q: "Why can't we use the 100 MHz clock directly for button inputs?",
+          options: [
+            "It's too slow",
+            "A button press (~100ms) would span 10 million clock cycles",
+            "The FPGA can't handle it",
+            "It would damage the hardware",
+          ],
+          a: 1,
+        },
+        {
+          id: 33,
+          category: "Section C: Clock Management",
+          q: "The clock divider (clkgen) divides the clock by:",
+          options: ["2^8", "2^16", "2^28", "2^32"],
+          a: 2,
+        },
+        {
+          id: 34,
+          category: "Section C: Clock Management",
+          q: "What is the approximate frequency of the slow clock (sClk)?",
+          options: ["~0.37 Hz", "~10 Hz", "~1 kHz", "~50 MHz"],
+          a: 0,
+        },
+        {
+          id: 35,
+          category: "Section C: Clock Management",
+          q: "The period of the slow clock is approximately:",
+          options: ["10 ns", "100 ms", "~2.68 seconds", "10 seconds"],
+          a: 2,
+        },
+        {
+          id: 36,
+          category: "Section C: Clock Management",
+          q: "How does the clock divider work?",
+          options: [
+            "Using a PLL",
+            "Using a 28-bit counter; output is the MSB which toggles every 2^27 cycles",
+            "Using multiple flip-flops in series",
+            "Using the FPGA's built-in clock divider",
+          ],
+          a: 1,
+        },
+        {
+          id: 37,
+          category: "Section C: Clock Management",
+          q: "Why is LED[7] connected to sClk?",
+          options: [
+            "To show the system is powered",
+            "To provide visual feedback of when clock edges occur",
+            "To indicate errors",
+            "To show the reset state",
+          ],
+          a: 1,
+        },
+        {
+          id: 38,
+          category: "Section C: Clock Management",
+          q: "When operating the FPGA, you should press a button:",
+          options: [
+            "Quickly and release",
+            "Hold until LED[7] blinks, then release",
+            "Hold for exactly 1 second",
+            "Press multiple times rapidly",
+          ],
+          a: 1,
+        },
+        {
+          id: 39,
+          category: "Section C: Clock Management",
+          q: "What is the time scale difference between human button press and FPGA clock?",
+          options: [
+            "1,000× (3 orders of magnitude)",
+            "1,000,000× (6 orders of magnitude)",
+            "10,000,000× (7 orders of magnitude)",
+            "1,000,000,000× (9 orders of magnitude)",
+          ],
+          a: 2,
+        },
+        {
+          id: 40,
+          category: "Section C: Clock Management",
+          q: "Which clock is used in Lab2_top when integrated into Lab2_imp?",
+          options: [
+            "clk (100 MHz)",
+            "sClk (slow clock)",
+            "An external clock",
+            "No clock",
+          ],
+          a: 1,
+        },
+
+        // Section D: Testbench & Simulation
+        {
+          id: 41,
+          category: "Section D: Testbench and Simulation",
+          q: "In a testbench, inputs to the UUT (Unit Under Test) are declared as:",
+          options: ["wire", "reg", "integer", "parameter"],
+          a: 1,
+        },
+        {
+          id: 42,
+          category: "Section D: Testbench and Simulation",
+          q: "In a testbench, outputs from the UUT are declared as:",
+          options: ["wire", "reg", "integer", "parameter"],
+          a: 0,
+        },
+        {
+          id: 43,
+          category: "Section D: Testbench and Simulation",
+          q: "The timescale `1ns / 1ps` means:",
+          options: [
+            "Time unit = 1ns, precision = 1ps",
+            "Time unit = 1ps, precision = 1ns",
+            "Simulation runs at 1ns per second",
+            "Delays are in picoseconds",
+          ],
+          a: 0,
+        },
+        {
+          id: 44,
+          category: "Section D: Testbench and Simulation",
+          q: "To create a 100 MHz clock in simulation, the clock should toggle every:",
+          options: ["5 ns", "10 ns", "100 ns", "1 μs"],
+          a: 0,
+        },
+        {
+          id: 45,
+          category: "Section D: Testbench and Simulation",
+          q: "The expected output sequence in the testbench is:",
+          options: [
+            "0, 15, A3, 87, 15, 87",
+            "15, A3, 87, 15, 87, 0",
+            "0, 0, 15, A3, 87, 15",
+            "87, A3, 15, 0, 0, 0",
+          ],
+          a: 0,
+        },
+        {
+          id: 46,
+          category: "Section D: Testbench and Simulation",
+          q: "Why do we need to add reg_d and mem_d to the waveform?",
+          options: [
+            "It's required by Vivado",
+            "To see internal signals for debugging",
+            "To make the simulation faster",
+            "They are outputs",
+          ],
+          a: 1,
+        },
+        {
+          id: 47,
+          category: "Section D: Testbench and Simulation",
+          q: "When should you close the simulator window?",
+          options: [
+            "Immediately after simulation completes",
+            "After verifying the output",
+            "Never during the lab session (needed for assessment)",
+            "After Task 3",
+          ],
+          a: 2,
+        },
+        {
+          id: 48,
+          category: "Section D: Testbench and Simulation",
+          q: "The $finish() command:",
+          options: [
+            "Pauses the simulation",
+            "Stops the simulation",
+            "Restarts the simulation",
+            "Saves the waveform",
+          ],
+          a: 1,
+        },
+        {
+          id: 49,
+          category: "Section D: Testbench and Simulation",
+          q: "In the test sequence, when is Memory[1] written?",
+          options: [
+            "At time 40ns",
+            "At time 50ns (when write_en=1, address=0x01, reg_d=0x15)",
+            "At time 60ns",
+            "Never",
+          ],
+          a: 1,
+        },
+        {
+          id: 50,
+          category: "Section D: Testbench and Simulation",
+          q: "What value is in Memory[2] after the test sequence?",
+          options: ["0x15", "0xA3", "0x87", "Undefined"],
+          a: 1,
+        },
+
+        // Section E: FPGA Implementation
+        {
+          id: 51,
+          category: "Section E: FPGA Implementation",
+          q: "What is the purpose of the Lab2_imp.v wrapper?",
+          options: [
+            "To test the design",
+            "To add FPGA-specific modules (clock divider, 7-segment driver)",
+            "To replace Lab2_top",
+            "To generate the bitstream",
+          ],
+          a: 1,
+        },
+        {
+          id: 52,
+          category: "Section E: FPGA Implementation",
+          q: "Which module displays data on the 7-segment display?",
+          options: ["clkgen", "seven_seg", "Lab2_top", "Lab2_mem"],
+          a: 1,
+        },
+        {
+          id: 53,
+          category: "Section E: FPGA Implementation",
+          q: "The XDC file is used to:",
+          options: [
+            "Configure the memory",
+            "Map signals to physical FPGA pins",
+            "Set up the clock",
+            "Define module parameters",
+          ],
+          a: 1,
+        },
+        {
+          id: 54,
+          category: "Section E: FPGA Implementation",
+          q: "LVCMOS33 means:",
+          options: [
+            "33 MHz clock",
+            "3.3V low-voltage CMOS logic standard",
+            "33 logic cells",
+            "33-pin package",
+          ],
+          a: 1,
+        },
+        {
+          id: 55,
+          category: "Section E: FPGA Implementation",
+          q: "The three stages of FPGA build process are:",
+          options: [
+            "Compile, Link, Load",
+            "Synthesize, Implement, Generate Bitstream",
+            "Design, Simulate, Program",
+            "Edit, Build, Deploy",
+          ],
+          a: 1,
+        },
+        {
+          id: 56,
+          category: "Section E: FPGA Implementation",
+          q: "What does synthesis do?",
+          options: [
+            "Converts Verilog to FPGA primitives (LUTs, FFs, etc.)",
+            "Places components on the chip",
+            "Generates the .bit file",
+            "Programs the FPGA",
+          ],
+          a: 0,
+        },
+        {
+          id: 57,
+          category: "Section E: FPGA Implementation",
+          q: "What does implementation do?",
+          options: [
+            "Converts Verilog to primitives",
+            "Places primitives and routes wires between them",
+            "Generates the .bit file",
+            "Simulates the design",
+          ],
+          a: 1,
+        },
+        {
+          id: 58,
+          category: "Section E: FPGA Implementation",
+          q: "The button btnU (top button) is connected to:",
+          options: ["write_en", "save_data", "rst (reset)", "show_reg"],
+          a: 2,
+        },
+        {
+          id: 59,
+          category: "Section E: FPGA Implementation",
+          q: "The button btnR (right button) is connected to:",
+          options: ["write_en", "save_data", "rst", "show_reg"],
+          a: 1,
+        },
+        {
+          id: 60,
+          category: "Section E: FPGA Implementation",
+          q: "The button btnL (left button) is connected to:",
+          options: ["write_en", "save_data", "rst", "show_reg"],
+          a: 3,
+        },
+
+        // Section F: Code Analysis
+        {
+          id: 61,
+          category: "Section F: Code Analysis",
+          q: "What is WRONG with this code?",
+          code: "Lab2_mem U1 (\n    .a(d_in[5:0]),\n    .d(d_in), // <-- This line\n    .clk(clk),\n    .we(write_en),\n    .spo(mem_d)\n);",
+          options: [
+            "Nothing, it's correct",
+            "Should be .d(reg_d) to allow staging",
+            "Should be .d(mem_d)",
+            "Should be .d(d_out)",
+          ],
+          a: 1,
+        },
+        {
+          id: 62,
+          category: "Section F: Code Analysis",
+          q: "What is WRONG with this code?",
+          code: "Lab2_top U1 (\n    .clk(clk), // <-- This line (in Lab2_imp.v)\n    .rst(rst),\n    ...\n);",
+          options: [
+            "Nothing, it's correct",
+            "Should use sClk (slow clock) for human interaction",
+            "Should use an external clock",
+            "Should not have a clock",
+          ],
+          a: 1,
+        },
+        {
+          id: 63,
+          category: "Section F: Code Analysis",
+          q: "What does this code do?",
+          code: "always @(posedge clk) begin\n    if (rst)\n        reg_d <= 8'b0;\n    else if (save_data)\n        reg_d <= d_in;\nend",
+          options: [
+            "Asynchronous register with reset",
+            "Synchronous register with reset and enable",
+            "Combinational logic",
+            "Memory controller",
+          ],
+          a: 1,
+        },
+        {
+          id: 64,
+          category: "Section F: Code Analysis",
+          q: "What is the output of this expression when show_reg=1?",
+          code: "assign d_out = show_reg ? mem_d : reg_d;",
+          options: ["reg_d", "mem_d", "d_in", "0"],
+          a: 1,
+        },
+        {
+          id: 65,
+          category: "Section F: Code Analysis",
+          q: "What type of assignment is this? \nassign d_out = show_reg ? mem_d : reg_d;",
+          options: [
+            "Blocking assignment",
+            "Non-blocking assignment",
+            "Continuous assignment (ternary operator)",
+            "Procedural assignment",
+          ],
+          a: 2,
+        },
+        {
+          id: 66,
+          category: "Section F: Code Analysis",
+          q: "In this instantiation, what does .a(d_in[5:0]) mean?",
+          options: [
+            "Port 'a' connects to bits [5:0] of d_in",
+            "Port 'a' is 5 bits wide",
+            "d_in is shifted by 5",
+            "Only bit 5 is connected",
+          ],
+          a: 0,
+        },
+        {
+          id: 67,
+          category: "Section F: Code Analysis",
+          q: "What is the issue with this testbench code?",
+          code: "initial begin\n    #10 d_in = 8'h15;\n    #10 save_data = 1;\n    #10 save_data = 0; d_in = 8'h01;\n    #10 write_en = 1;\nend",
+          options: [
+            "Nothing, it's correct",
+            "Missing clock initialization",
+            "Missing reset de-assertion",
+            "Both B and C",
+          ],
+          a: 3,
+        },
+        {
+          id: 68,
+          category: "Section F: Code Analysis",
+          q: "How many bits is this signal? \nwire [7:0] mem_d;",
+          options: ["7 bits", "8 bits", "9 bits", "1 bit"],
+          a: 1,
+        },
+        {
+          id: 69,
+          category: "Section F: Code Analysis",
+          q: "This XDC constraint does what? \nset_property PACKAGE_PIN V17 [get_ports {d_in[0]}]",
+          options: [
+            "Sets d_in[0] to pin V17",
+            "Maps physical pin V17 to signal d_in[0]",
+            "Creates a new port",
+            "Sets the voltage to 17V",
+          ],
+          a: 1,
+        },
+        {
+          id: 70,
+          category: "Section F: Code Analysis",
+          q: "What synthesizes from this code? \nreg [27:0] counter; \nalways @(posedge clk_in) counter <= counter + 1;",
+          options: [
+            "A 28-bit adder",
+            "A 28-bit counter (28 flip-flops + increment logic)",
+            "A 28-bit register",
+            "A clock multiplier",
+          ],
+          a: 1,
+        },
+        {
+          id: 71,
+          category: "Section F: Code Analysis",
+          q: "What is the difference between these two reset types?",
+          options: [
+            "No difference",
+            "A is synchronous reset, B is asynchronous reset",
+            "B is synchronous reset, A is asynchronous reset",
+            "Both are asynchronous",
+          ],
+          a: 1,
+        },
+        {
+          id: 72,
+          category: "Section F: Code Analysis",
+          q: "What infers a flip-flop in Verilog?",
+          options: [
+            "always @(*)",
+            "always @(posedge clk)",
+            "assign statement",
+            "wire declaration",
+          ],
+          a: 1,
+        },
+        {
+          id: 73,
+          category: "Section F: Code Analysis",
+          q: "What infers combinational logic in Verilog?",
+          options: [
+            "always @(*) or assign",
+            "always @(posedge clk)",
+            "reg declaration",
+            "Only assign statements",
+          ],
+          a: 0,
+        },
+        {
+          id: 74,
+          category: "Section F: Code Analysis",
+          q: "In the seven_seg module, why are outputs active-low?",
+          options: [
+            "It's a Verilog requirement",
+            "The Basys 3 uses common-anode 7-segment displays",
+            "It's faster",
+            "To save power",
+          ],
+          a: 1,
+        },
+        {
+          id: 75,
+          category: "Section F: Code Analysis",
+          q: "What does this generate? \nalways #5 clk = ~clk;",
+          options: [
+            "A 5 Hz clock",
+            "A 10 Hz clock",
+            "A clock that toggles every 5 time units (10 time unit period)",
+            "A one-time pulse",
+          ],
+          a: 2,
+        },
+
+        // Section G: Conceptual
+        {
+          id: 76,
+          category: "Section G: Conceptual Questions",
+          q: "The main advantage of simulation before hardware testing is:",
+          options: [
+            "It's faster",
+            "Full visibility into all signals, repeatable tests, fast iteration",
+            "It's required by Vivado",
+            "Hardware doesn't work without it",
+          ],
+          a: 1,
+        },
+        {
+          id: 77,
+          category: "Section G: Conceptual Questions",
+          q: "Time-multiplexing means:",
+          options: [
+            "Using multiple clocks",
+            "Sharing resources across time (same switches for data and address)",
+            "Running operations in parallel",
+            "Dividing the clock frequency",
+          ],
+          a: 1,
+        },
+        {
+          id: 78,
+          category: "Section G: Conceptual Questions",
+          q: "The load-store architecture pattern means:",
+          options: [
+            "Data moves through registers before reaching memory",
+            "Memory has both load and store ports",
+            "Registers are faster than memory",
+            "All operations use memory",
+          ],
+          a: 0,
+        },
+        {
+          id: 79,
+          category: "Section G: Conceptual Questions",
+          q: "What is the industry practice for simulation vs. hardware testing?",
+          options: [
+            "50% simulation, 50% hardware",
+            "20% simulation, 80% hardware",
+            "80% simulation, 20% hardware",
+            "No simulation needed",
+          ],
+          a: 2,
+        },
+        {
+          id: 80,
+          category: "Section G: Conceptual Questions",
+          q: "Synchronous operations are preferred for:",
+          options: [
+            "Fast responses",
+            "State changes (writes, register updates) to avoid glitches",
+            "Reading data",
+            "Combinational logic",
+          ],
+          a: 1,
+        },
+        {
+          id: 81,
+          category: "Section G: Conceptual Questions",
+          q: "Asynchronous operations are preferred for:",
+          options: [
+            "Writing data",
+            "State changes",
+            "Reads/lookups when you need immediate response",
+            "Reset signals",
+          ],
+          a: 2,
+        },
+        {
+          id: 82,
+          category: "Section G: Conceptual Questions",
+          q: "Why is modular design important (Lab2_top separate from Lab2_imp)?",
+          options: [
+            "Easier to test and debug",
+            "Core logic is portable and reusable",
+            "Separates board-specific code from design logic",
+            "All of the above",
+          ],
+          a: 3,
+        },
+        {
+          id: 83,
+          category: "Section G: Conceptual Questions",
+          q: "What real-world system uses address/data bus multiplexing?",
+          options: [
+            "CPUs and DDR memory",
+            "USB cables",
+            "Power supplies",
+            "Keyboards",
+          ],
+          a: 0,
+        },
+        {
+          id: 84,
+          category: "Section G: Conceptual Questions",
+          q: "The staging register pattern is used in:",
+          options: [
+            "CPU register files",
+            "Pipeline stages",
+            "FIFO buffers",
+            "All of the above",
+          ],
+          a: 3,
+        },
+        {
+          id: 85,
+          category: "Section G: Conceptual Questions",
+          q: "Why don't we initialize the distributed RAM?",
+          options: [
+            "Distributed RAM typically doesn't support initialization",
+            "We want random data",
+            "Block RAM is better for initialization",
+            "Both A and C",
+          ],
+          a: 3,
+        },
+
+        // Section H: Common Mistakes
+        {
+          id: 86,
+          category: "Section H: Common Mistakes & Debugging",
+          q: "If the display always shows 0, the most likely cause is:",
+          options: [
+            "Wrong MUX connection",
+            "Still in reset (rst not released)",
+            "Wrong clock",
+            "Bad memory",
+          ],
+          a: 1,
+        },
+        {
+          id: 87,
+          category: "Section H: Common Mistakes & Debugging",
+          q: "If button presses don't work on the FPGA, you should:",
+          options: [
+            "Press faster",
+            "Hold the button until LED[7] blinks",
+            "Reset the board",
+            "Regenerate the bitstream",
+          ],
+          a: 1,
+        },
+        {
+          id: 88,
+          category: "Section H: Common Mistakes & Debugging",
+          q: "If d_out is always 'X' in simulation, check:",
+          options: [
+            "Clock initialization",
+            "RAM instantiation (spo connected to mem_d?)",
+            "Testbench syntax",
+            "FPGA programming",
+          ],
+          a: 1,
+        },
+        {
+          id: 89,
+          category: "Section H: Common Mistakes & Debugging",
+          q: "If synthesis uses Block RAM instead of distributed RAM:",
+          options: [
+            "Change the data width",
+            'Regenerate IP with "Distributed Memory Generator"',
+            "Use a different FPGA",
+            "Modify the constraints",
+          ],
+          a: 1,
+        },
+        {
+          id: 90,
+          category: "Section H: Common Mistakes & Debugging",
+          q: "Why must you keep the simulator open after Task 2?",
+          options: [
+            "To save memory",
+            "Lab supervisor needs to verify your Task 2 work during assessment",
+            "It keeps the license active",
+            "The FPGA won't work otherwise",
+          ],
+          a: 1,
+        },
+        {
+          id: 91,
+          category: "Section H: Common Mistakes & Debugging",
+          q: "If switches don't control anything on hardware:",
+          options: [
+            "Check XDC pin mappings",
+            "Check if bitstream was loaded",
+            "Check if constraints were applied",
+            "All of the above",
+          ],
+          a: 3,
+        },
+        {
+          id: 92,
+          category: "Section H: Common Mistakes & Debugging",
+          q: "If the testbench output is wrong, you should:",
+          options: [
+            "Reprogram the FPGA",
+            "View internal signals (reg_d, mem_d) in waveform to debug",
+            "Change the test sequence",
+            "Skip simulation",
+          ],
+          a: 1,
+        },
+        {
+          id: 93,
+          category: "Section H: Common Mistakes & Debugging",
+          q: "The most common mistake in Lab2_top.v is:",
+          options: [
+            "Wrong clock frequency",
+            "Connecting RAM data input to d_in instead of reg_d",
+            "Missing the MUX",
+            "Wrong timescale",
+          ],
+          a: 1,
+        },
+        {
+          id: 94,
+          category: "Section H: Common Mistakes & Debugging",
+          q: "The most common mistake in Lab2_imp.v is:",
+          options: [
+            "Wrong instance name",
+            "Using 100MHz clock instead of sClk",
+            "Missing modules",
+            "Wrong port order",
+          ],
+          a: 1,
+        },
+        {
+          id: 95,
+          category: "Section H: Common Mistakes & Debugging",
+          q: "If memory writes don't persist:",
+          options: [
+            "Check that write_en is pulsed during a clock edge",
+            "Check that reg_d has the correct data",
+            "Check show_reg isn't stuck at 0 when trying to view memory",
+            "All of the above",
+          ],
+          a: 3,
+        },
+
+        // Section I: Synthesis
+        {
+          id: 96,
+          category: "Section I: Synthesis Reports",
+          q: "After synthesis of Lab2_top, you should see:",
+          options: [
+            "Only combinational logic",
+            "8 LUT-RAMs, 8 flip-flops, and ~8 LUTs for the MUX",
+            "Block RAM",
+            "No resources used",
+          ],
+          a: 1,
+        },
+        {
+          id: 97,
+          category: "Section I: Synthesis Reports",
+          q: "The 8 flip-flops inferred are for:",
+          options: [
+            "The memory",
+            "The register (reg_d)",
+            "The clock divider",
+            "The MUX",
+          ],
+          a: 1,
+        },
+        {
+          id: 98,
+          category: "Section I: Synthesis Reports",
+          q: "The LUT-RAMs (RAMD64E) are:",
+          options: [
+            "The distributed memory",
+            "The register",
+            "The MUX",
+            "The clock divider",
+          ],
+          a: 0,
+        },
+        {
+          id: 99,
+          category: "Section I: Synthesis Reports",
+          q: "What should the implementation stage have?",
+          options: [
+            "Many warnings",
+            "Zero warnings (if done correctly)",
+            "Errors are acceptable",
+            "Critical warnings only",
+          ],
+          a: 1,
+        },
+        {
+          id: 100,
+          category: "Section I: Synthesis Reports",
+          q: "Where is the distributed memory physically located?",
+          options: [
+            "In dedicated Block RAM",
+            "Inside LUTs (same resources used for logic)",
+            "In external DRAM",
+            "In a separate memory chip",
+          ],
+          a: 1,
+        },
+      ];
+
+      let currentQuestions = [];
+      let currentIndex = 0;
+      let score = 0;
+      let hasAnswered = false;
+
+      // UI Initialization
+      const categories = [...new Set(quizData.map((q) => q.category))];
+      const categoryList = document.getElementById("category-buttons");
+      categories.forEach((cat) => {
+        const btn = document.createElement("button");
+        btn.className =
+          "p-2 text-left text-sm border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors truncate";
+        btn.innerText = cat;
+        btn.onclick = () => startQuiz(cat);
+        categoryList.appendChild(btn);
+      });
+
+      function showCategorySelector() {
+        document.getElementById("category-list").classList.toggle("hidden");
+      }
+
+      function startQuiz(mode) {
+        if (mode === "all") {
+          currentQuestions = [...quizData].sort(() => Math.random() - 0.5);
+        } else {
+          currentQuestions = quizData.filter((q) => q.category === mode);
+        }
+
+        currentIndex = 0;
+        score = 0;
+        hasAnswered = false;
+
+        document.getElementById("setup-screen").classList.add("hidden");
+        document.getElementById("results-screen").classList.add("hidden");
+        document.getElementById("quiz-screen").classList.remove("hidden");
+
+        showQuestion();
+      }
+
+      function showQuestion() {
+        const q = currentQuestions[currentIndex];
+        hasAnswered = false;
+
+        // Progress Update
+        document.getElementById("category-label").innerText = q.category;
+        document.getElementById("progress-text").innerText =
+          `Question ${currentIndex + 1} of ${currentQuestions.length}`;
+        document.getElementById("progress-bar").style.width =
+          `${((currentIndex + 1) / currentQuestions.length) * 100}%`;
+
+        // Text Update
+        document.getElementById("question-text").innerText = q.q;
+
+        // Code Block
+        const codeEl = document.getElementById("code-block");
+        if (q.code) {
+          codeEl.innerText = q.code;
+          codeEl.classList.remove("hidden");
+        } else {
+          codeEl.classList.add("hidden");
+        }
+
+        // Options
+        const container = document.getElementById("options-container");
+        container.innerHTML = "";
+
+        q.options.forEach((opt, idx) => {
+          const btn = document.createElement("button");
+          btn.className =
+            "option-btn w-full p-4 text-left rounded-xl border-2 border-slate-100 hover:border-indigo-300 font-medium text-slate-700 flex items-center";
+          btn.innerHTML = `
+                    <span class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs font-bold mr-4 shrink-0">${String.fromCharCode(65 + idx)}</span>
+                    <span>${opt}</span>
+                `;
+          btn.onclick = () => selectOption(idx, btn);
+          container.appendChild(btn);
+        });
+
+        document.getElementById("next-btn").disabled = true;
+      }
+
+      function selectOption(idx, btn) {
+        if (hasAnswered) return;
+        hasAnswered = true;
+
+        const q = currentQuestions[currentIndex];
+        const isCorrect = idx === q.a;
+
+        if (isCorrect) {
+          score++;
+          btn.classList.add("border-emerald-500", "bg-emerald-50");
+          btn
+            .querySelector("span")
+            .classList.add("bg-emerald-500", "text-white");
+        } else {
+          btn.classList.add("border-rose-500", "bg-rose-50");
+          btn.querySelector("span").classList.add("bg-rose-500", "text-white");
+
+          // Show correct one
+          const buttons = document.querySelectorAll(".option-btn");
+          buttons[q.a].classList.add("border-emerald-500", "bg-emerald-50");
+          buttons[q.a]
+            .querySelector("span")
+            .classList.add("bg-emerald-500", "text-white");
+        }
+
+        document.getElementById("next-btn").disabled = false;
+      }
+
+      function nextQuestion() {
+        currentIndex++;
+        if (currentIndex < currentQuestions.length) {
+          showQuestion();
+        } else {
+          showResults();
+        }
+      }
+
+      function showResults() {
+        document.getElementById("quiz-screen").classList.add("hidden");
+        document.getElementById("results-screen").classList.remove("hidden");
+
+        document.getElementById("final-score").innerText =
+          `${score}/${currentQuestions.length}`;
+        const percent = Math.round((score / currentQuestions.length) * 100);
+        document.getElementById("final-percent").innerText = `${percent}%`;
+
+        let message = "Keep studying!";
+        if (percent >= 90) message = "Excellent mastery! You are ready.";
+        else if (percent >= 70)
+          message = "Good work. Review the ones you missed.";
+
+        document.getElementById("result-meta").innerText = message;
+      }
+
+      function exitQuiz() {
+        document.getElementById("quiz-screen").classList.add("hidden");
+        document.getElementById("setup-screen").classList.remove("hidden");
+      }
+    </script>
+  </body>
+</html>
