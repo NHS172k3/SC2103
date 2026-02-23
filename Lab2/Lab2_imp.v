@@ -30,8 +30,7 @@ module Lab2_imp(input clk, rst, write_en, save_data, show_reg, sel,
 
 	 // Instantiate your Lab2_top module here. Connect d_out to tmp_data.
 	 Lab2_top U1 (
-	     .clk(sClk),        // IMPORTANT: Use slow clock, not the 100MHz clk!
-	     .rst(rst),
+	     .clk(sClk),        
 	     .write_en(write_en),
 	     .save_data(save_data),
 	     .show_reg(show_reg),
